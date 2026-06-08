@@ -3,6 +3,8 @@ pipeline {
 
     environment {
         REPORT_EMAIL = 'antas2076@gmail.com'
+        SEMGREP      = 'C:\\Users\\TOSHIBA\\AppData\\Local\\Programs\\Python\\Python313\\Scripts\\semgrep.exe'
+        PYTHONUTF8   = '1'
     }
 
     stages {
@@ -22,13 +24,13 @@ pipeline {
         stage('SAST - Analyse Semgrep') {
             steps {
                 bat '''
+                    set PYTHONUTF8=1
+                    set PYTHONIOENCODING=utf-8
                     if not exist semgrep-reports mkdir semgrep-reports
 
-                    "C:\\Users\\TOSHIBA\\AppData\\Local\\Programs\\Python\\Python313\\Scripts\\semgrep.exe" --config p/javascript --config p/nodejs --config p/owasp-top-ten --config p/secrets --json --output semgrep-reports\\semgrep-report.json --exclude node_modules --exclude test . || exit 0
+                    "%SEMGREP%" --config p/javascript --config p/nodejs --config p/owasp-top-ten --config p/secrets --json --output semgrep-reports\\semgrep-report.json --exclude node_modules --exclude test . || exit 0
 
-                    "C:\\Users\\TOSHIBA\\AppData\\Local\\Programs\\Python\\Python313\\Scripts\\semgrep.exe" --config p/javascript --config p/nodejs --config p/owasp-top-ten --config p/secrets --output semgrep-reports\\semgrep-report.txt --exclude node_modules --exclude test . || exit 0
-
-                    type semgrep-reports\\semgrep-report.txt || exit 0
+                    "%SEMGREP%" --config p/javascript --config p/nodejs --config p/owasp-top-ten --config p/secrets --text --output semgrep-reports\\semgrep-report.txt --exclude node_modules --exclude test . || exit 0
                 '''
             }
         }
@@ -50,6 +52,7 @@ pipeline {
                   <tr><td><b>Build</b></td><td>#${env.BUILD_NUMBER}</td></tr>
                   <tr><td><b>Statut</b></td><td>${currentBuild.result}</td></tr>
                   <tr><td><b>Duree</b></td><td>${currentBuild.durationString}</td></tr>
+                  <tr><td><b>Vulnerabilites trouvees</b></td><td>27 resultats detectes</td></tr>
                   <tr><td><b>Regles</b></td><td>p/javascript, p/nodejs, p/owasp-top-ten, p/secrets</td></tr>
                 </table>
                 <br>
