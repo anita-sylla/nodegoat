@@ -2,44 +2,34 @@ pipeline {
     agent any
 
     environment {
-        REPORT_EMAIL  = 'antas2076@gmail.com'
-        REPORT_DIR    = 'semgrep-reports'
-        SEMGREP_RULES = 'p/javascript p/nodejs p/owasp-top-ten p/secrets'
+        REPORT_EMAIL = 'antas2076@gmail.com'
     }
 
     stages {
 
-        stage('📥 Clone du code') {
+        stage('Clone du code') {
             steps {
-                echo '=== Récupération du code source ==='
                 checkout scm
             }
         }
 
-        stage('📦 Installation des dépendances') {
+        stage('Installation des dependances') {
             steps {
-                echo '=== Installation npm ==='
                 bat 'npm install || exit 0'
             }
         }
 
-        stage('🔍 SAST - Analyse Semgrep') {
+        stage('SAST - Analyse Semgrep') {
             steps {
-                echo '=== Lancement Semgrep ==='
                 bat '''
                     if not exist semgrep-reports mkdir semgrep-reports
 
-                    semgrep --config p/javascript --config p/nodejs --config p/owasp-top-ten --config p/secrets --json --output semgrep-reports\\semgrep-report.json --exclude node_modules --exclude test . || exit 0
+                    "C:\\Users\\TOSHIBA\\AppData\\Local\\Programs\\Python\\Python313\\Scripts\\semgrep.exe" --config p/javascript --config p/nodejs --config p/owasp-top-ten --config p/secrets --json --output semgrep-reports\\semgrep-report.json --exclude node_modules --exclude test . || exit 0
 
-                    semgrep --config p/javascript --config p/nodejs --config p/owasp-top-ten --config p/secrets --output semgrep-reports\\semgrep-report.txt --exclude node_modules --exclude test . || exit 0
+                    "C:\\Users\\TOSHIBA\\AppData\\Local\\Programs\\Python\\Python313\\Scripts\\semgrep.exe" --config p/javascript --config p/nodejs --config p/owasp-top-ten --config p/secrets --output semgrep-reports\\semgrep-report.txt --exclude node_modules --exclude test . || exit 0
+
+                    type semgrep-reports\\semgrep-report.txt || exit 0
                 '''
-            }
-        }
-
-        stage('📊 Résumé des vulnérabilités') {
-            steps {
-                echo '=== Analyse terminée - voir rapport ==='
-                bat 'type semgrep-reports\\semgrep-report.txt || exit 0'
             }
         }
     }
@@ -60,7 +50,7 @@ pipeline {
                   <tr><td><b>Build</b></td><td>#${env.BUILD_NUMBER}</td></tr>
                   <tr><td><b>Statut</b></td><td>${currentBuild.result}</td></tr>
                   <tr><td><b>Duree</b></td><td>${currentBuild.durationString}</td></tr>
-                  <tr><td><b>Regles</b></td><td>p/javascript p/nodejs p/owasp-top-ten</td></tr>
+                  <tr><td><b>Regles</b></td><td>p/javascript, p/nodejs, p/owasp-top-ten, p/secrets</td></tr>
                 </table>
                 <br>
                 <p>Rapport semgrep-report.txt en piece jointe</p>
@@ -71,7 +61,7 @@ pipeline {
                 attachmentsPattern: 'semgrep-reports/semgrep-report.txt'
             )
         }
-        success { echo 'Pipeline termine avec succes' }
+        success { echo 'Pipeline termine - email envoye' }
         failure { echo 'Pipeline echoue - verifier les logs' }
     }
 }
