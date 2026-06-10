@@ -1,6 +1,5 @@
 pipeline {
     agent any
-
     environment {
         REPORT_EMAIL = 'antas2076@gmail.com'
         SEMGREP      = 'C:\\Users\\TOSHIBA\\AppData\\Local\\Programs\\Python\\Python313\\Scripts\\semgrep.exe'
